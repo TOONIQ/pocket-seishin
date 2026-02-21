@@ -642,7 +642,7 @@ export default function SettingsPage() {
               value={String(exportYear)}
               onValueChange={(v) => { setExportYear(parseInt(v)); setExportPreview(null); }}
             >
-              <SelectTrigger className="h-9 w-20">
+              <SelectTrigger className="h-9 w-24">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -658,7 +658,7 @@ export default function SettingsPage() {
               value={String(exportMonth)}
               onValueChange={(v) => { setExportMonth(parseInt(v)); setExportPreview(null); }}
             >
-              <SelectTrigger className="h-9 w-16">
+              <SelectTrigger className="h-9 w-20">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
