@@ -234,14 +234,9 @@ export function TutorialOverlay() {
                   </Button>
                 )}
                 {isLast ? (
-                  <div className="flex flex-col gap-2 flex-1">
-                    <Button size="sm" className="w-full" onClick={() => complete(false)}>
-                      デモデータを削除して始める
-                    </Button>
-                    <Button variant="outline" size="sm" className="w-full" onClick={() => complete(true)}>
-                      デモデータを残して始める
-                    </Button>
-                  </div>
+                  <Button size="sm" className="flex-1" onClick={complete}>
+                    始める
+                  </Button>
                 ) : (
                   <Button size="sm" className="flex-1" onClick={next}>
                     次へ

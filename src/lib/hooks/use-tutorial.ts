@@ -29,7 +29,7 @@ export const TUTORIAL_STEPS: TutorialStepDef[] = [
     title: "スタジオ登録",
     body: "取引先スタジオを登録しましょう。スタジオ名とデフォルト単価を設定すると、カット追加時に自動で単価が入ります。",
     target: '[data-tutorial="studio-section"]',
-    cardPosition: "above",
+    cardPosition: "below",
     navigateTo: "/settings",
   },
   {
@@ -37,7 +37,7 @@ export const TUTORIAL_STEPS: TutorialStepDef[] = [
     title: "カットを追加",
     body: "受け取ったカットを登録して進捗管理。受領 → 作業中 → 提出 → 完了のステップで状態を追跡できます。",
     target: '[data-tutorial="cut-list"]',
-    cardPosition: "above",
+    cardPosition: "below",
     navigateTo: "/cuts",
   },
   {
@@ -59,7 +59,7 @@ export const TUTORIAL_STEPS: TutorialStepDef[] = [
   {
     icon: "🚀",
     title: "準備完了！",
-    body: "チュートリアルは以上です。\nデモデータを残して試すか、削除してまっさらな状態から始められます。",
+    body: "チュートリアルは以上です。\nデモデータを削除して、さっそく始めましょう！",
   },
 ];
 
@@ -97,10 +97,8 @@ export function useTutorial() {
     setStep(0);
   }, []);
 
-  const complete = useCallback(async (keepDemo: boolean) => {
-    if (!keepDemo) {
-      await removeDemoData();
-    }
+  const complete = useCallback(async () => {
+    await removeDemoData();
     await setSetting("tutorial_completed", "true");
     setIsOpen(false);
     setStep(0);
