@@ -36,6 +36,7 @@ import {
   detectLinkType,
 } from "@/lib/hooks/use-quick-links";
 import type { QuickLinkType } from "@/types/cut";
+import { CHANGELOG } from "@/lib/changelog";
 
 export default function SettingsPage() {
   const { theme, toggle: toggleTheme } = useTheme();
@@ -57,6 +58,9 @@ export default function SettingsPage() {
   const [linkLabel, setLinkLabel] = useState("");
   const [linkValue, setLinkValue] = useState("");
   const [editingLinkId, setEditingLinkId] = useState<number | null>(null);
+
+  // Changelog
+  const [showChangelog, setShowChangelog] = useState(false);
 
   // CSV Export
   const now = new Date();
@@ -494,7 +498,7 @@ export default function SettingsPage() {
             onChange={(e) => backupState.setPassphrase(e.target.value)}
           />
           <p className="text-[10px] text-muted-foreground mt-1">
-            新しいデバイスでの復元に必要です。忘れると復元できません。
+            バックアップ時にデータをAES-256で暗号化します。復元時に同じパスフレーズが必要です。忘れると復元できません。
           </p>
         </div>
 
@@ -703,9 +707,37 @@ export default function SettingsPage() {
       <Card className="p-4 gap-3">
         <h3 className="text-sm font-bold">アプリ情報</h3>
         <div className="space-y-1 text-xs text-muted-foreground">
-          <p>ポケット制作進行 v0.3.1</p>
+          <p>ポケット制作進行 v{CHANGELOG[0].version}</p>
           <p>フリーランスアニメーター向け制作進行管理</p>
         </div>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowChangelog((v) => !v)}
+        >
+          {showChangelog ? "更新履歴を閉じる" : "更新履歴"}
+        </Button>
+
+        {showChangelog && (
+          <div className="space-y-3">
+            {CHANGELOG.map((entry) => (
+              <div key={entry.version} className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold">v{entry.version}</span>
+                  <span className="text-[10px] text-muted-foreground">{entry.date}</span>
+                </div>
+                <ul className="space-y-0.5 pl-3">
+                  {entry.changes.map((change, i) => (
+                    <li key={i} className="text-xs text-muted-foreground list-disc">
+                      {change}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
 
         <Button
           variant="outline"

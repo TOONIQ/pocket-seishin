@@ -7,6 +7,7 @@ declare global {
             client_id: string;
             scope: string;
             callback: (response: { access_token?: string; error?: string }) => void;
+            error_callback?: (error: { type: string; message?: string }) => void;
           }): { requestAccessToken(): void };
         };
       };
@@ -62,6 +63,9 @@ export async function requestAccessToken(): Promise<string> {
         } else {
           reject(new Error("No access token received"));
         }
+      },
+      error_callback: (error) => {
+        reject(new Error(error.message || "ポップアップが閉じられました"));
       },
     });
     client.requestAccessToken();
