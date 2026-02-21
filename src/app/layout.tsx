@@ -28,7 +28,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#0a0a0a",
+  themeColor: "#ffffff",
 };
 
 // Inline script to prevent flash of wrong theme
@@ -36,13 +36,13 @@ const themeScript = `
 (function(){
   try {
     var t = localStorage.getItem('seishin-theme');
-    if (t === 'light') {
-      document.documentElement.classList.remove('dark');
-    } else {
+    if (t === 'dark') {
       document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
   } catch(e) {
-    document.documentElement.classList.add('dark');
+    // default: light
   }
 })();
 `;
@@ -53,7 +53,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className="dark" suppressHydrationWarning>
+    <html lang="ja" className="" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
