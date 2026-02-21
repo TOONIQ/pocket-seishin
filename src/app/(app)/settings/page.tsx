@@ -620,27 +620,6 @@ export default function SettingsPage() {
           <p className="text-xs text-red-400">{backupState.error}</p>
         )}
 
-        <Separator />
-
-        <p className="text-[10px] text-muted-foreground">
-          不具合・ご要望はお気軽にどうぞ:{" "}
-          <a
-            href="https://x.com/oki_tooniq"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary underline underline-offset-2"
-          >
-            @oki_tooniq
-          </a>
-          {" / "}
-          <a
-            href="mailto:contact@tooniq.co.jp?subject=%E5%88%B6%E9%80%B2%20%E3%83%95%E3%82%A3%E3%83%BC%E3%83%89%E3%83%90%E3%83%83%E3%82%AF"
-            className="text-primary underline underline-offset-2"
-          >
-            メール
-          </a>
-        </p>
-
         <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 opacity-60">
           <span className="text-lg">🔄</span>
           <div>
