@@ -1,20 +1,3 @@
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        oauth2: {
-          initTokenClient(config: {
-            client_id: string;
-            scope: string;
-            callback: (response: { access_token?: string; error?: string }) => void;
-            error_callback?: (error: { type: string; message?: string }) => void;
-          }): { requestAccessToken(): void };
-        };
-      };
-    };
-  }
-}
-
 const BACKUP_FILENAME = "seishin-backup.json";
 const SCOPE = "https://www.googleapis.com/auth/drive.appdata";
 
@@ -24,52 +7,22 @@ function getClientId(): string {
   return id;
 }
 
-let gisLoaded = false;
-
-export async function loadGisScript(): Promise<void> {
-  if (gisLoaded && window.google?.accounts?.oauth2) return;
-
-  return new Promise((resolve, reject) => {
-    if (document.querySelector('script[src*="gsi/client"]')) {
-      gisLoaded = true;
-      resolve();
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.onload = () => {
-      gisLoaded = true;
-      resolve();
-    };
-    script.onerror = () => reject(new Error("Failed to load Google Identity Services"));
-    document.head.appendChild(script);
+export function getAuthUrl(): string {
+  const redirectUri = `${window.location.origin}/settings`;
+  const params = new URLSearchParams({
+    client_id: getClientId(),
+    redirect_uri: redirectUri,
+    response_type: "token",
+    scope: SCOPE,
+    include_granted_scopes: "true",
   });
+  return `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
 }
 
-export async function requestAccessToken(): Promise<string> {
-  await loadGisScript();
-
-  return new Promise((resolve, reject) => {
-    const client = window.google!.accounts.oauth2.initTokenClient({
-      client_id: getClientId(),
-      scope: SCOPE,
-      callback: (response) => {
-        if (response.error) {
-          reject(new Error(response.error));
-        } else if (response.access_token) {
-          resolve(response.access_token);
-        } else {
-          reject(new Error("No access token received"));
-        }
-      },
-      error_callback: (error) => {
-        reject(new Error(error.message || "ポップアップが閉じられました"));
-      },
-    });
-    client.requestAccessToken();
-  });
+export function parseAccessTokenFromHash(hash: string): string | null {
+  if (!hash || hash.length < 2) return null;
+  const params = new URLSearchParams(hash.substring(1));
+  return params.get("access_token");
 }
 
 async function findBackupFileId(token: string): Promise<string | null> {

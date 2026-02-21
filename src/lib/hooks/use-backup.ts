@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { encrypt, decrypt } from "@/lib/crypto";
 import { exportAllData, importAllData, type BackupData } from "@/lib/backup";
 import {
-  requestAccessToken,
+  getAuthUrl,
+  parseAccessTokenFromHash,
   uploadBackup,
   downloadBackup,
   getBackupInfo,
@@ -18,7 +19,7 @@ interface UseBackupReturn {
   error: string | null;
   passphrase: string;
   setPassphrase: (v: string) => void;
-  signIn: () => Promise<void>;
+  signIn: () => void;
   backup: () => Promise<void>;
   restore: () => Promise<BackupData>;
   confirmRestore: (data: BackupData) => Promise<void>;
@@ -48,32 +49,31 @@ export function useBackup(): UseBackupReturn {
     }
   }, [passphrase]);
 
-  // Fetch backup info after sign in
-  const fetchBackupInfo = useCallback(async (accessToken: string) => {
-    try {
-      const info = await getBackupInfo(accessToken);
-      if (info) {
-        setLastBackup(info.modifiedTime);
-      }
-    } catch {
-      // non-critical: just means we can't show last backup date
+  // Check for OAuth redirect token on mount
+  useEffect(() => {
+    const accessToken = parseAccessTokenFromHash(window.location.hash);
+    if (accessToken) {
+      setToken(accessToken);
+      setIsSignedIn(true);
+      // Clean up hash from URL
+      window.history.replaceState(null, "", window.location.pathname);
+      // Fetch backup info
+      getBackupInfo(accessToken)
+        .then((info) => {
+          if (info) setLastBackup(info.modifiedTime);
+        })
+        .catch(() => {});
     }
   }, []);
 
-  const signIn = useCallback(async () => {
-    setIsLoading(true);
+  const signIn = useCallback(() => {
     setError(null);
     try {
-      const accessToken = await requestAccessToken();
-      setToken(accessToken);
-      setIsSignedIn(true);
-      await fetchBackupInfo(accessToken);
+      window.location.href = getAuthUrl();
     } catch (e) {
       setError(e instanceof Error ? e.message : "接続に失敗しました");
-    } finally {
-      setIsLoading(false);
     }
-  }, [fetchBackupInfo]);
+  }, []);
 
   const backup = useCallback(async () => {
     if (!token) throw new Error("Not signed in");
