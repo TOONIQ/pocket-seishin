@@ -28,6 +28,7 @@ import {
 } from "@/lib/hooks/use-studios";
 import { setMonthlyTarget } from "@/lib/hooks/use-income";
 import { useTheme } from "@/lib/hooks/use-theme";
+import { useNotifications } from "@/lib/hooks/use-notifications";
 import {
   useQuickLinks,
   addQuickLink,
@@ -41,6 +42,7 @@ import { CHANGELOG } from "@/lib/changelog";
 
 export default function SettingsPage() {
   const { theme, toggle: toggleTheme } = useTheme();
+  const notif = useNotifications();
   const studiosWithStats = useStudiosWithStats();
   const quickLinks = useQuickLinks();
   const backupState = useBackup();
@@ -472,6 +474,93 @@ export default function SettingsPage() {
             {theme === "dark" ? "☀️ 明" : "🌙 暗"}
           </Button>
         </div>
+      </Card>
+
+      {/* Notifications */}
+      <Card className="p-4 gap-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-bold">通知</h3>
+            <p className="text-xs text-muted-foreground">
+              {!notif.supported
+                ? "このブラウザは通知に対応していません"
+                : notif.permission === "denied"
+                  ? "通知がブラウザ設定でブロックされています"
+                  : notif.enabled
+                    ? "締切・提出のリマインダーが有効です"
+                    : "締切・提出の通知を受け取れます"}
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 w-20"
+            disabled={!notif.supported || notif.permission === "denied"}
+            onClick={() => notif.setEnabled(!notif.enabled)}
+          >
+            {notif.enabled ? "ON" : "OFF"}
+          </Button>
+        </div>
+
+        {notif.enabled && (
+          <div className="space-y-3 pt-1">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm">締切リマインダー</p>
+                <p className="text-[10px] text-muted-foreground">
+                  期限超過・今日・明日の締切を通知
+                </p>
+              </div>
+              <Button
+                variant={notif.deadline ? "default" : "outline"}
+                size="sm"
+                className="h-7 w-14 text-xs"
+                onClick={() => notif.setDeadline(!notif.deadline)}
+              >
+                {notif.deadline ? "ON" : "OFF"}
+              </Button>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm">提出フォローアップ</p>
+                <p className="text-[10px] text-muted-foreground">
+                  提出後{notif.followupDays}日以上経過で通知
+                </p>
+              </div>
+              <Button
+                variant={notif.followup ? "default" : "outline"}
+                size="sm"
+                className="h-7 w-14 text-xs"
+                onClick={() => notif.setFollowup(!notif.followup)}
+              >
+                {notif.followup ? "ON" : "OFF"}
+              </Button>
+            </div>
+
+            {notif.followup && (
+              <div className="flex items-center gap-2 pl-2">
+                <Label className="text-xs shrink-0">通知日数</Label>
+                <Select
+                  value={String(notif.followupDays)}
+                  onValueChange={(v) => notif.setFollowupDays(parseInt(v))}
+                >
+                  <SelectTrigger className="h-8 w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[3, 5, 7, 10, 14].map((d) => (
+                      <SelectItem key={d} value={String(d)}>
+                        {d}日
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span className="text-[10px] text-muted-foreground">以上で通知</span>
+              </div>
+            )}
+          </div>
+        )}
       </Card>
 
       {/* Cloud Backup */}

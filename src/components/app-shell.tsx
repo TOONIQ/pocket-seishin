@@ -3,8 +3,12 @@
 import { BottomNav } from "@/components/bottom-nav";
 import { SyncIndicator } from "@/components/sync-indicator";
 import { TutorialOverlay } from "@/components/tutorial-overlay";
+import { useNotifications } from "@/lib/hooks/use-notifications";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  // Initialize notification scheduler (runs check every 30min when enabled)
+  useNotifications();
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-lg safe-area-top">
