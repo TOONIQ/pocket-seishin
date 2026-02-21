@@ -41,6 +41,14 @@ export const TUTORIAL_STEPS: TutorialStepDef[] = [
     navigateTo: "/cuts",
   },
   {
+    icon: "📅",
+    title: "スケジュール",
+    body: "締切のあるカットが週間タイムラインで表示されます。今週・来週の作業量を一目で把握できます。",
+    target: '[data-tutorial="schedule-deadline"]',
+    cardPosition: "below",
+    navigateTo: "/schedule",
+  },
+  {
     icon: "⏰",
     title: "締切アラート",
     body: "締切が近いカットはダッシュボードにアラート表示されます。期限内に提出できるよう管理しましょう。",

@@ -60,65 +60,73 @@ export default function SchedulePage() {
       )}
 
       {/* Weekly Timeline */}
-      {weeks.map(({ weekStart, days }, weekIdx) => (
-        <div key={weekIdx} className="space-y-2">
-          <h3 className="text-sm font-bold text-muted-foreground">
-            {weekIdx === 0
-              ? "今週"
-              : weekIdx === 1
-                ? "来週"
-                : format(weekStart, "M/d〜", { locale: ja })}
-          </h3>
+      {(() => {
+        let firstDeadlineMarked = false;
+        return weeks.map(({ weekStart, days }, weekIdx) => (
+          <div key={weekIdx} className="space-y-2">
+            <h3 className="text-sm font-bold text-muted-foreground">
+              {weekIdx === 0
+                ? "今週"
+                : weekIdx === 1
+                  ? "来週"
+                  : format(weekStart, "M/d〜", { locale: ja })}
+            </h3>
 
-          <div className="space-y-1">
-            {days.map((day) => {
-              const dayCuts = cutsWithDeadlines.filter(
-                (c) => c.deadline && isSameDay(parseISO(c.deadline), day)
-              );
-              const todayFlag = isToday(day);
+            <div className="space-y-1">
+              {days.map((day) => {
+                const dayCuts = cutsWithDeadlines.filter(
+                  (c) => c.deadline && isSameDay(parseISO(c.deadline), day)
+                );
+                const todayFlag = isToday(day);
 
-              // Calculate daily price total
-              const dayTotal = dayCuts.reduce((sum, c) => sum + getCutTotalPrice(c), 0);
+                // Mark first day with deadlines for tutorial spotlight
+                const shouldMark = dayCuts.length > 0 && !firstDeadlineMarked;
+                if (shouldMark) firstDeadlineMarked = true;
 
-              return (
-                <div
-                  key={day.toISOString()}
-                  className={`rounded-lg p-2 ${
-                    todayFlag ? "bg-primary/5 border border-primary/20" : ""
-                  } ${dayCuts.length === 0 ? "opacity-50" : ""}`}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <span
-                      className={`text-xs font-mono ${
-                        todayFlag ? "text-primary font-bold" : "text-muted-foreground"
-                      }`}
-                    >
-                      {format(day, "M/d (E)", { locale: ja })}
-                    </span>
-                    {dayCuts.length > 0 && (
-                      <Badge variant="secondary" className="text-[10px]">
-                        {dayCuts.length}件
-                      </Badge>
-                    )}
-                    {dayTotal > 0 && (
-                      <span className="text-[10px] text-muted-foreground ml-auto">
-                        ¥{dayTotal.toLocaleString()}
+                // Calculate daily price total
+                const dayTotal = dayCuts.reduce((sum, c) => sum + getCutTotalPrice(c), 0);
+
+                return (
+                  <div
+                    key={day.toISOString()}
+                    className={`rounded-lg p-2 ${
+                      todayFlag ? "bg-primary/5 border border-primary/20" : ""
+                    } ${dayCuts.length === 0 ? "opacity-50" : ""}`}
+                    {...(shouldMark ? { "data-tutorial": "schedule-deadline" } : {})}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <span
+                        className={`text-xs font-mono ${
+                          todayFlag ? "text-primary font-bold" : "text-muted-foreground"
+                        }`}
+                      >
+                        {format(day, "M/d (E)", { locale: ja })}
                       </span>
+                      {dayCuts.length > 0 && (
+                        <Badge variant="secondary" className="text-[10px]">
+                          {dayCuts.length}件
+                        </Badge>
+                      )}
+                      {dayTotal > 0 && (
+                        <span className="text-[10px] text-muted-foreground ml-auto">
+                          ¥{dayTotal.toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                    {dayCuts.length > 0 && (
+                      <div className="space-y-1 ml-2">
+                        {dayCuts.map((cut) => (
+                          <CutCard key={cut.id} cut={cut} />
+                        ))}
+                      </div>
                     )}
                   </div>
-                  {dayCuts.length > 0 && (
-                    <div className="space-y-1 ml-2">
-                      {dayCuts.map((cut) => (
-                        <CutCard key={cut.id} cut={cut} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        ));
+      })()}
 
       {/* No deadlines */}
       {cutsWithDeadlines.length === 0 && (
