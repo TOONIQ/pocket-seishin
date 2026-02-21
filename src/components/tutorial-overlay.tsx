@@ -49,8 +49,12 @@ function useTargetRect(selector: string | undefined, isOpen: boolean, step: numb
     const pollInterval = setInterval(() => {
       const el = document.querySelector(selector);
       if (el) {
-        const r = el.getBoundingClientRect();
-        setRect({ x: r.x, y: r.y, width: r.width, height: r.height });
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        // Measure after scroll settles
+        setTimeout(() => {
+          const r = el.getBoundingClientRect();
+          setRect({ x: r.x, y: r.y, width: r.width, height: r.height });
+        }, 350);
         clearInterval(pollInterval);
       } else if (++attempts >= maxAttempts) {
         clearInterval(pollInterval);
