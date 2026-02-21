@@ -1,13 +1,22 @@
 "use client";
 
+import { useEffect } from "react";
 import { BottomNav } from "@/components/bottom-nav";
 import { SyncIndicator } from "@/components/sync-indicator";
 import { TutorialOverlay } from "@/components/tutorial-overlay";
 import { useNotifications } from "@/lib/hooks/use-notifications";
+import { getSetting, setSetting } from "@/lib/db";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   // Initialize notification scheduler (runs check every 30min when enabled)
   useNotifications();
+
+  // Record first access timestamp
+  useEffect(() => {
+    getSetting("registered_at").then((v) => {
+      if (!v) setSetting("registered_at", new Date().toISOString());
+    });
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
