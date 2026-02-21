@@ -689,6 +689,8 @@ export default function SettingsPage() {
               </SelectContent>
             </Select>
           </div>
+        </div>
+        <div className="flex gap-2">
           <Button size="sm" variant="outline" onClick={handleExportPreview}>
             確認
           </Button>
