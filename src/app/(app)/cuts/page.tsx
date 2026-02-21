@@ -145,7 +145,7 @@ export default function CutsPage() {
         <h2 className="text-lg font-bold">カット一覧</h2>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" className="h-8">
+            <Button size="sm" className="h-8" data-tutorial="cut-add-button">
               + 追加
             </Button>
           </DialogTrigger>
@@ -366,7 +366,7 @@ export default function CutsPage() {
       </p>
 
       {/* Cut List */}
-      <div className="space-y-3" data-tutorial="cut-list">
+      <div className="space-y-3">
         {sortedCuts.map((cut) => (
           <CutCard key={cut.id} cut={cut} />
         ))}

@@ -36,7 +36,7 @@ export const TUTORIAL_STEPS: TutorialStepDef[] = [
     icon: "📋",
     title: "カットを追加",
     body: "受け取ったカットを登録して進捗管理。受領 → 作業中 → 提出 → 完了のステップで状態を追跡できます。",
-    target: '[data-tutorial="cut-list"]',
+    target: '[data-tutorial="cut-add-button"]',
     cardPosition: "below",
     navigateTo: "/cuts",
   },
