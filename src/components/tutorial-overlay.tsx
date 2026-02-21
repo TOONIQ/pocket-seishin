@@ -1,59 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useTutorial } from "@/lib/hooks/use-tutorial";
+import { useTutorial, TUTORIAL_STEPS } from "@/lib/hooks/use-tutorial";
 import { AnimatePresence, motion } from "framer-motion";
-
-interface TutorialStep {
-  icon: string;
-  title: string;
-  body: string;
-  /** CSS selector for the element to spotlight. null = centered card */
-  target?: string;
-  /** Where to show the info card relative to spotlight */
-  cardPosition?: "above" | "below";
-}
-
-const steps: TutorialStep[] = [
-  {
-    icon: "🎬",
-    title: "ようこそ",
-    body: "フリーランスアニメーターのためのカット管理アプリです。受け取ったカットの進捗・収入をまとめて管理できます。",
-  },
-  {
-    icon: "🔒",
-    title: "データは端末の中だけ",
-    body: "データは全てお使いの端末にローカル保存され、私たちのサーバーには一切送信されません。試しにWi-Fiを切っても使えます。\n\n情報漏洩が不安な方は、自分だけがわかる隠語で登録してもOKです。\n\nただしブラウザの履歴・データを削除すると消えてしまうのでご注意を。Google Driveへの自動バックアップ機能を準備中です！",
-  },
-  {
-    icon: "🏢",
-    title: "スタジオ登録",
-    body: "まずは取引先スタジオを登録しましょう。設定画面からスタジオ名とデフォルト単価を設定できます。",
-    target: '[data-tutorial="settings"]',
-    cardPosition: "above",
-  },
-  {
-    icon: "📋",
-    title: "カットを追加",
-    body: "受け取ったカットを登録して進捗管理。受領 → 作業中 → 提出 → 完了のステップで状態を追跡できます。",
-    target: '[data-tutorial="cuts"]',
-    cardPosition: "above",
-  },
-  {
-    icon: "💰",
-    title: "収入管理",
-    body: "月収目標を設定すると、日ノルマと達成率がダッシュボードに表示されます。確定申告用のCSVエクスポートも可能です。",
-    target: '[data-tutorial="dashboard"]',
-    cardPosition: "above",
-  },
-  {
-    icon: "🚀",
-    title: "準備完了！",
-    body: "さっそく始めましょう！カットを追加するか、まずは設定からスタジオを登録するのがおすすめです。",
-  },
-];
 
 const cardVariants = {
   enter: { y: 16, opacity: 0 },
@@ -68,7 +20,7 @@ interface Rect {
   height: number;
 }
 
-function useTargetRect(selector: string | undefined, isOpen: boolean) {
+function useTargetRect(selector: string | undefined, isOpen: boolean, step: number) {
   const [rect, setRect] = useState<Rect | null>(null);
 
   const measure = useCallback(() => {
@@ -86,16 +38,33 @@ function useTargetRect(selector: string | undefined, isOpen: boolean) {
   }, [selector]);
 
   useEffect(() => {
-    if (!isOpen) return;
-    // measure immediately + on resize/scroll
-    measure();
+    if (!isOpen || !selector) {
+      setRect(null);
+      return;
+    }
+
+    // Poll for the target element (it may not exist yet after navigation)
+    let attempts = 0;
+    const maxAttempts = 20; // 20 * 50ms = 1 second
+    const pollInterval = setInterval(() => {
+      const el = document.querySelector(selector);
+      if (el) {
+        const r = el.getBoundingClientRect();
+        setRect({ x: r.x, y: r.y, width: r.width, height: r.height });
+        clearInterval(pollInterval);
+      } else if (++attempts >= maxAttempts) {
+        clearInterval(pollInterval);
+      }
+    }, 50);
+
     window.addEventListener("resize", measure);
     window.addEventListener("scroll", measure, true);
     return () => {
+      clearInterval(pollInterval);
       window.removeEventListener("resize", measure);
       window.removeEventListener("scroll", measure, true);
     };
-  }, [measure, isOpen]);
+  }, [measure, isOpen, selector, step]);
 
   return rect;
 }
@@ -104,11 +73,30 @@ function useTargetRect(selector: string | undefined, isOpen: boolean) {
 const SPOT_PAD = 12;
 
 export function TutorialOverlay() {
-  const { isOpen, step, totalSteps, loaded, next, prev, skip, complete } =
+  const router = useRouter();
+  const { isOpen, step, totalSteps, loaded, next, prev, skip, complete, currentStepDef } =
     useTutorial();
+  const prevStepRef = useRef(step);
 
-  const current = steps[step];
-  const targetRect = useTargetRect(current?.target, isOpen);
+  const current = TUTORIAL_STEPS[step];
+  const targetRect = useTargetRect(current?.target, isOpen, step);
+
+  // Navigate when step changes
+  useEffect(() => {
+    if (!isOpen || !current?.navigateTo) return;
+    if (prevStepRef.current !== step) {
+      router.push(current.navigateTo);
+    }
+    prevStepRef.current = step;
+  }, [step, isOpen, current?.navigateTo, router]);
+
+  // Also navigate on initial open if step 0 has navigateTo
+  useEffect(() => {
+    if (isOpen && step === 0 && current?.navigateTo) {
+      router.push(current.navigateTo);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   if (!loaded || !isOpen) return null;
 
@@ -188,12 +176,16 @@ export function TutorialOverlay() {
         className={`absolute left-0 right-0 z-10 flex justify-center px-4 ${
           hasSpotlight && current.cardPosition === "above"
             ? "bottom-auto"
-            : "top-1/2 -translate-y-1/2"
+            : hasSpotlight && current.cardPosition === "below"
+              ? "top-auto"
+              : "top-1/2 -translate-y-1/2"
         }`}
         style={
           hasSpotlight && current.cardPosition === "above"
             ? { top: Math.max(16, spotCy - spotRadius - 16) + "px", transform: "translateY(-100%)" }
-            : undefined
+            : hasSpotlight && current.cardPosition === "below"
+              ? { top: spotCy + spotRadius + 16 + "px" }
+              : undefined
         }
       >
         <AnimatePresence mode="wait">
@@ -242,9 +234,14 @@ export function TutorialOverlay() {
                   </Button>
                 )}
                 {isLast ? (
-                  <Button size="sm" className="flex-1" onClick={complete}>
-                    始める
-                  </Button>
+                  <div className="flex flex-col gap-2 flex-1">
+                    <Button size="sm" className="w-full" onClick={() => complete(false)}>
+                      デモデータを削除して始める
+                    </Button>
+                    <Button variant="outline" size="sm" className="w-full" onClick={() => complete(true)}>
+                      デモデータを残して始める
+                    </Button>
+                  </div>
                 ) : (
                   <Button size="sm" className="flex-1" onClick={next}>
                     次へ

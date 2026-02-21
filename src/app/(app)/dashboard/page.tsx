@@ -72,7 +72,7 @@ export default function DashboardPage() {
 
       {/* Income Ring */}
       {income && income.monthlyTarget > 0 && (
-        <Card className="p-4 gap-3">
+        <Card className="p-4 gap-3" data-tutorial="income-ring">
           <IncomeRing earned={income.earned} target={income.monthlyTarget} />
           <div className="text-center space-y-1">
             <p className="text-sm text-muted-foreground">

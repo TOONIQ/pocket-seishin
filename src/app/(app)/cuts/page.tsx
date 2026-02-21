@@ -366,7 +366,7 @@ export default function CutsPage() {
       </p>
 
       {/* Cut List */}
-      <div className="space-y-3">
+      <div className="space-y-3" data-tutorial="cut-list">
         {sortedCuts.map((cut) => (
           <CutCard key={cut.id} cut={cut} />
         ))}

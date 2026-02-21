@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getSetting, setSetting, db } from "@/lib/db";
+import { insertDemoData } from "@/lib/demo-data";
 import { getMonthlyExportData, exportMonthlyCSV } from "@/lib/export-csv";
 import { useBackup } from "@/lib/hooks/use-backup";
 import type { BackupData } from "@/lib/backup";
@@ -176,7 +177,7 @@ export default function SettingsPage() {
       <h2 className="text-lg font-bold">設定</h2>
 
       {/* Studios */}
-      <Card className="p-4 gap-3">
+      <Card className="p-4 gap-3" data-tutorial="studio-section">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold">スタジオ管理</h3>
           <Button
@@ -710,6 +711,7 @@ export default function SettingsPage() {
           variant="outline"
           size="sm"
           onClick={async () => {
+            await insertDemoData();
             await setSetting("tutorial_completed", "");
             window.location.reload();
           }}

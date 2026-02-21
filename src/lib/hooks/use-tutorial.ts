@@ -2,8 +2,68 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { getSetting, setSetting } from "@/lib/db";
+import { insertDemoData, removeDemoData } from "@/lib/demo-data";
 
-const TOTAL_STEPS = 6;
+export interface TutorialStepDef {
+  icon: string;
+  title: string;
+  body: string;
+  target?: string;
+  cardPosition?: "above" | "below";
+  navigateTo?: string;
+}
+
+export const TUTORIAL_STEPS: TutorialStepDef[] = [
+  {
+    icon: "🎬",
+    title: "ようこそ",
+    body: "フリーランスアニメーターのためのカット管理アプリです。\nデモデータを使って実際の画面を見ながら使い方を紹介します。",
+  },
+  {
+    icon: "🔒",
+    title: "データは端末の中だけ",
+    body: "データは全てお使いの端末にローカル保存され、私たちのサーバーには一切送信されません。試しにWi-Fiを切っても使えます。\n\n情報漏洩が不安な方は、自分だけがわかる隠語で登録してもOKです。\n\nただしブラウザの履歴・データを削除すると消えてしまうのでご注意を。Google Driveへの自動バックアップ機能を準備中です！",
+  },
+  {
+    icon: "🏢",
+    title: "スタジオ登録",
+    body: "取引先スタジオを登録しましょう。スタジオ名とデフォルト単価を設定すると、カット追加時に自動で単価が入ります。",
+    target: '[data-tutorial="studio-section"]',
+    cardPosition: "above",
+    navigateTo: "/settings",
+  },
+  {
+    icon: "📋",
+    title: "カットを追加",
+    body: "受け取ったカットを登録して進捗管理。受領 → 作業中 → 提出 → 完了のステップで状態を追跡できます。",
+    target: '[data-tutorial="cut-list"]',
+    cardPosition: "above",
+    navigateTo: "/cuts",
+  },
+  {
+    icon: "⏰",
+    title: "締切アラート",
+    body: "締切が近いカットはダッシュボードにアラート表示されます。期限内に提出できるよう管理しましょう。",
+    target: '[data-tutorial="deadline-alert"]',
+    cardPosition: "below",
+    navigateTo: "/dashboard",
+  },
+  {
+    icon: "💰",
+    title: "収入管理",
+    body: "月収目標を設定すると、日ノルマと達成率がリングで表示されます。確定申告用のCSVエクスポートも可能です。",
+    target: '[data-tutorial="income-ring"]',
+    cardPosition: "above",
+    navigateTo: "/dashboard",
+  },
+  {
+    icon: "🚀",
+    title: "準備完了！",
+    body: "チュートリアルは以上です。\nデモデータを残して試すか、削除してまっさらな状態から始められます。",
+  },
+];
+
+const TOTAL_STEPS = TUTORIAL_STEPS.length;
 
 export function useTutorial() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,6 +75,7 @@ export function useTutorial() {
       const completed = await getSetting("tutorial_completed");
       if (!completed) {
         setIsOpen(true);
+        await insertDemoData();
       }
       setLoaded(true);
     }
@@ -29,10 +90,26 @@ export function useTutorial() {
     setStep((s) => Math.max(s - 1, 0));
   }, []);
 
-  const markDone = useCallback(async () => {
+  const skip = useCallback(async () => {
+    await removeDemoData();
     await setSetting("tutorial_completed", "true");
     setIsOpen(false);
     setStep(0);
+  }, []);
+
+  const complete = useCallback(async (keepDemo: boolean) => {
+    if (!keepDemo) {
+      await removeDemoData();
+    }
+    await setSetting("tutorial_completed", "true");
+    setIsOpen(false);
+    setStep(0);
+  }, []);
+
+  const restart = useCallback(async () => {
+    await insertDemoData();
+    setStep(0);
+    setIsOpen(true);
   }, []);
 
   return {
@@ -42,7 +119,9 @@ export function useTutorial() {
     loaded,
     next,
     prev,
-    skip: markDone,
-    complete: markDone,
+    skip,
+    complete,
+    restart,
+    currentStepDef: TUTORIAL_STEPS[step],
   };
 }
