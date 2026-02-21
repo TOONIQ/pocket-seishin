@@ -11,6 +11,7 @@ export interface TutorialStepDef {
   target?: string;
   cardPosition?: "above" | "below";
   navigateTo?: string;
+  isPwaInstall?: boolean;
 }
 
 export const TUTORIAL_STEPS: TutorialStepDef[] = [
@@ -63,6 +64,12 @@ export const TUTORIAL_STEPS: TutorialStepDef[] = [
     target: '[data-tutorial="income-ring"]',
     cardPosition: "above",
     navigateTo: "/dashboard",
+  },
+  {
+    icon: "📲",
+    title: "ホーム画面に追加",
+    body: "PWAアプリなので、スマホのホーム画面に追加するとネイティブアプリのように使えます。",
+    isPwaInstall: true,
   },
   {
     icon: "🚀",

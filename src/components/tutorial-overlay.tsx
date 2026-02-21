@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useTutorial, TUTORIAL_STEPS } from "@/lib/hooks/use-tutorial";
+import { usePwaInstall } from "@/lib/hooks/use-pwa-install";
 import { AnimatePresence, motion } from "framer-motion";
 
 const cardVariants = {
@@ -80,6 +81,7 @@ export function TutorialOverlay() {
   const router = useRouter();
   const { isOpen, step, totalSteps, loaded, next, prev, skip, complete, currentStepDef } =
     useTutorial();
+  const pwa = usePwaInstall();
   const prevStepRef = useRef(step);
 
   const current = TUTORIAL_STEPS[step];
@@ -209,6 +211,29 @@ export function TutorialOverlay() {
                 <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
                   {current.body}
                 </p>
+                {current.isPwaInstall && (
+                  <div className="w-full mt-2">
+                    {pwa.isInstalled ? (
+                      <p className="text-xs text-green-500">インストール済みです</p>
+                    ) : pwa.canInstall ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full"
+                        onClick={async () => {
+                          await pwa.install();
+                        }}
+                      >
+                        ホーム画面に追加する
+                      </Button>
+                    ) : (
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <p><b>iOS:</b> Safari の共有ボタン → 「ホーム画面に追加」</p>
+                        <p><b>Android:</b> メニュー → 「ホーム画面に追加」</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Dot indicators */}
