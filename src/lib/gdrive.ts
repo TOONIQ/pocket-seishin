@@ -1,5 +1,5 @@
 const BACKUP_FILENAME = "seishin-backup.json";
-const SCOPE = "https://www.googleapis.com/auth/drive.appdata";
+const SCOPE = "https://www.googleapis.com/auth/drive.appdata email";
 
 function getClientId(): string {
   const id = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
@@ -23,6 +23,19 @@ export function parseAccessTokenFromHash(hash: string): string | null {
   if (!hash || hash.length < 2) return null;
   const params = new URLSearchParams(hash.substring(1));
   return params.get("access_token");
+}
+
+export async function getUserEmail(token: string): Promise<string | null> {
+  try {
+    const res = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.email ?? null;
+  } catch {
+    return null;
+  }
 }
 
 async function findBackupFileId(token: string): Promise<string | null> {

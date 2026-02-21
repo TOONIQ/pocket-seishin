@@ -10,11 +10,13 @@ import {
   uploadBackup,
   downloadBackup,
   getBackupInfo,
+  getUserEmail,
 } from "@/lib/gdrive";
 import { getSetting, setSetting } from "@/lib/db";
 
 interface UseBackupReturn {
   isSignedIn: boolean;
+  userEmail: string | null;
   lastBackup: string | null;
   isLoading: boolean;
   error: string | null;
@@ -30,6 +32,7 @@ const PASSPHRASE_KEY = "backup_passphrase";
 
 export function useBackup(): UseBackupReturn {
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [lastBackup, setLastBackup] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +61,8 @@ export function useBackup(): UseBackupReturn {
       setIsSignedIn(true);
       // Clean up hash from URL
       window.history.replaceState(null, "", window.location.pathname);
-      // Fetch backup info
+      // Fetch user email and backup info
+      getUserEmail(accessToken).then((email) => setUserEmail(email));
       getBackupInfo(accessToken)
         .then((info) => {
           if (info) setLastBackup(info.modifiedTime);
@@ -147,6 +151,7 @@ export function useBackup(): UseBackupReturn {
 
   return {
     isSignedIn,
+    userEmail,
     lastBackup,
     isLoading,
     error,

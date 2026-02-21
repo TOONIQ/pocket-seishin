@@ -612,7 +612,7 @@ export default function SettingsPage() {
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-xs text-green-500">
               <span>✓</span>
-              <span>Googleアカウント接続済み</span>
+              <span>{backupState.userEmail ? `${backupState.userEmail} で接続中` : "Googleアカウント接続済み"}</span>
             </div>
 
             {backupState.lastBackup && (
