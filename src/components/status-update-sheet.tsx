@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { track } from "@vercel/analytics";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { updateCutStep } from "@/lib/hooks/use-cuts";
@@ -29,11 +30,13 @@ export function StatusUpdateSheet({
       return;
     }
     await updateCutStep(cutId, newStep);
+    track("step_change", { from: currentStep, to: newStep });
     onOpenChange(false);
   }
 
   async function handleRetakeSubmit() {
     await updateCutStep(cutId, "retake", retakeReason || undefined);
+    track("step_change", { from: currentStep, to: "retake" });
     setRetakeReason("");
     setShowRetakeInput(false);
     onOpenChange(false);

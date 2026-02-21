@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { track } from "@vercel/analytics";
 import { useCuts, useProjects, useStudios, addCut } from "@/lib/hooks/use-cuts";
 import { getCutTotalPrice } from "@/types/cut";
 import { CutCard } from "@/components/cut-card";
@@ -135,6 +136,7 @@ export default function CutsPage() {
       });
     }
 
+    track("cut_add", { count: cutNumbers.length });
     setNewCutNumber("");
     setDialogOpen(false);
   }

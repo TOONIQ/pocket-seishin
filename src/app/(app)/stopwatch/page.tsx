@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { track } from "@vercel/analytics";
 import { Button } from "@/components/ui/button";
 
 const FPS = 24;
@@ -53,6 +54,7 @@ export default function StopwatchPage() {
       accumulatedRef.current += performance.now() - startTimeRef.current;
       setIsRunning(false);
     } else {
+      track("stopwatch_start");
       setIsRunning(true);
     }
   }

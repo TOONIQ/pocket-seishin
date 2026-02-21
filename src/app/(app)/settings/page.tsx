@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { track } from "@vercel/analytics";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -103,6 +104,7 @@ export default function SettingsPage() {
       await updateStudio(editingStudioId, studioData);
     } else {
       await addStudio(studioData);
+      track("studio_add");
     }
 
     resetStudioForm();
@@ -166,6 +168,7 @@ export default function SettingsPage() {
   }
 
   async function handleExport() {
+    track("csv_export");
     const data = await getMonthlyExportData(exportYear, exportMonth);
     exportMonthlyCSV(data.cuts, exportYear, exportMonth);
   }

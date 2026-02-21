@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { track } from "@vercel/analytics";
 import { encrypt, decrypt } from "@/lib/crypto";
 import { exportAllData, importAllData, type BackupData } from "@/lib/backup";
 import {
@@ -88,6 +89,7 @@ export function useBackup(): UseBackupReturn {
       const encryptedJson = JSON.stringify(encrypted);
       const result = await uploadBackup(token, encryptedJson);
       setLastBackup(result.createdAt);
+      track("backup");
     } catch (e) {
       const msg = e instanceof Error ? e.message : "バックアップに失敗しました";
       setError(msg);
@@ -131,6 +133,7 @@ export function useBackup(): UseBackupReturn {
       setError(null);
       try {
         await importAllData(data);
+        track("restore");
       } catch (e) {
         const msg = e instanceof Error ? e.message : "復元に失敗しました";
         setError(msg);
