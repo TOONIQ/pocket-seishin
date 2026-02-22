@@ -842,15 +842,15 @@ export default function SettingsPage() {
         <Separator />
 
         <a
-          href="https://buymeacoffee.com/okim"
+          href="https://buy.stripe.com/dRm3cu2N64G437Odqmb7y00"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 p-2 rounded-lg bg-yellow-400/10 active:scale-[0.98] transition-transform"
         >
-          <span className="text-lg">☕</span>
+          <span className="text-lg">💳</span>
           <div>
-            <p className="text-sm font-medium">Buy Me a Coffee</p>
-            <p className="text-[10px] text-muted-foreground">開発を応援する</p>
+            <p className="text-sm font-medium">開発を応援する</p>
+            <p className="text-[10px] text-muted-foreground">Stripeで安全に決済</p>
           </div>
         </a>
       </Card>
