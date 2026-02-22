@@ -853,6 +853,33 @@ export default function SettingsPage() {
             <p className="text-[10px] text-muted-foreground">Stripeで安全に決済</p>
           </div>
         </a>
+
+        <Separator />
+
+        <button
+          onClick={async () => {
+            const shareData = {
+              title: "ポケット制作進行",
+              text: "フリーランスアニメーター向け制作進行管理アプリ。カット管理・月収計算・締切通知をスマホひとつで。",
+              url: "https://pocket-seishin.vercel.app",
+            };
+            if (navigator.share) {
+              await navigator.share(shareData);
+            } else {
+              await navigator.clipboard.writeText(
+                `${shareData.text}\n${shareData.url}`
+              );
+              alert("クリップボードにコピーしました");
+            }
+          }}
+          className="flex items-center gap-2 p-2 rounded-lg bg-blue-400/10 active:scale-[0.98] transition-transform w-full text-left"
+        >
+          <span className="text-lg">📤</span>
+          <div>
+            <p className="text-sm font-medium">友達に共有する</p>
+            <p className="text-[10px] text-muted-foreground">アプリを広めて開発を応援</p>
+          </div>
+        </button>
       </Card>
 
       <Separator />
