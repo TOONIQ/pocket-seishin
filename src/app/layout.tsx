@@ -15,8 +15,30 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "ポケット制作進行",
-  description: "フリーランスアニメーター向け制作進行管理PWA",
+  description: "フリーランスアニメーター向けカット管理アプリ",
   manifest: "/manifest.webmanifest",
+  openGraph: {
+    title: "ポケット制作進行",
+    description: "フリーランスアニメーター向けカット管理アプリ",
+    url: "https://pocket-seishin.vercel.app",
+    siteName: "ポケット制作進行",
+    images: [
+      {
+        url: "https://pocket-seishin.vercel.app/og-image.png",
+        width: 1280,
+        height: 670,
+        alt: "ポケット制作進行 - ダッシュボード・カット一覧・スケジュール画面",
+      },
+    ],
+    locale: "ja_JP",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ポケット制作進行",
+    description: "フリーランスアニメーター向けカット管理アプリ",
+    images: ["https://pocket-seishin.vercel.app/og-image.png"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
